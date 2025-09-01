@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Fire Tourney - Player App</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff5722;
+            --primary-dark: #e64a19;
+            --secondary: #2196f3;
+            --dark: #1e1e2f;
+            --darker: #161622;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+            color: var(--light);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: var(--dark);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-balance {
+            background: var(--darker);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .user-balance i {
+            color: var(--success);
+            margin-right: 5px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .nav-tab {
+            padding: 12px 20px;
+            background: var(--dark);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        
+        .nav-tab.active {
+            background: var(--primary);
+        }
+        
+        .nav-tab:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Content Sections */
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Card Styles */
+        .card {
+            background: var(--dark);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-header h3 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+
+        .info-box {
+            background: var(--darker);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .info-box h4 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+        
+        /* Tournament Grid */
+        .tournament-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .tournament-card {
+            background: linear-gradient(135deg, var(--dark), var(--darker));
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s;
+        }
+        
+        .tournament-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .tournament-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .tournament-info {
+            margin-bottom: 15px;
+        }
+        
+        .tournament-info p {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .tournament-info .label {
+            color: var(--gray);
+        }
+        
+        .tournament-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--light);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--darker);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.2);
+        }
+        
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        th {
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Status Badges */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+        }
+        
+        .badge-warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: var(--warning);
+        }
+        
+        .badge-danger {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--danger);
+        }
+        
+        /* Login Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: var(--dark);
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: var(--gray);
+        }
+        
+        /* Alert Styles */
+        .alert {
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .alert-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .tournament-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .profile-update-alert {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .profile-update-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .profile-update-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* অতিরিক্ত অপশন কার্ড স্টাইল */
+        .additional-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .option-card {
+            background: var(--darker);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .option-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .option-card h3 {
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+        
+        .option-card p {
+            color: var(--gray);
+        }
+
+        /* New styles for payment details */
+        .payment-details {
+            transition: all 0.3s ease;
+        }
+        .hidden {
+            display: none;
+        }
+        
+        /* Winner Card Styles */
+        .winner-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .winner-card {
+            background: var(--darker);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border-top: 4px solid;
+        }
+
+        .winner-card.first-place { border-color: #ffd700; }
+        .winner-card.second-place { border-color: #c0c0c0; }
+        .winner-card.third-place { border-color: #cd7f32; }
+
+        .winner-card i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .winner-card.first-place i { color: #ffd700; }
+        .winner-card.second-place i { color: #c0c0c0; }
+        .winner-card.third-place i { color: #cd7f32; }
+
+        .winner-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .winner-card p {
+            color: var(--gray);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .winner-card .prize {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--success);
+            margin-top: 15px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="login-section" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2><i class="fas fa-fire"></i> Free Fire Tourney</h2>
+                <p>টুর্নামেন্টে অংশগ্রহণ করুন এবং পুরস্কার জিতুন</p>
+            </div>
+            <div class="form-group">
+                <label for="login-email">ইমেইল</label>
+                <input type="email" id="login-email" class="form-control" placeholder="আপনার ইমেইল লিখুন" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">পাসওয়ার্ড</label>
+                <input type="password" id="login-password" class="form-control" placeholder="আপনার পাসওয়ার্ড লিখুন" required>
+            </div>
+            <button id="login-btn" class="btn" style="width: 100%">
+                <i class="fas fa-sign-in-alt"></i> লগইন করুন
+            </button>
+            <p style="text-align: center; margin-top: 20px; color: var(--gray);">
+                নতুন ব্যবহারকারী? <a href="#" id="show-register" style="color: var(--primary);">রেজিস্ট্রেশন করুন</a>
+            </p>
+            <p id="login-error" class="alert alert-error" style="display: none; margin-top: 15px;"></p>
+        </div>
+    </div>
+
+    <!-- Registration Section -->
+    <div id="register-section" class="login-container" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <h2><i class="fas fa-user-plus"></i> একাউন্ট তৈরি করুন</h2>
+                <p>ফ্রি ফায়ার টুর্নামেন্টে অংশগ্রহণ করতে রেজিস্ট্রেশন করুন</p>
+            </div>
+            <div class="form-group">
+                <label for="register-name">পুরো নাম</label>
+                <input type="text" id="register-name" class="form-control" placeholder="আপনার পুরো নাম লিখুন" required>
+            </div>
+            <div class="form-group">
+                <label for="register-email">ইমেইল</label>
+                <input type="email" id="register-email" class="form-control" placeholder="আপনার ইমেইল লিখুন" required>
+            </div>
+            <div class="form-group">
+                <label for="register-password">পাসওয়ার্ড</label>
+                <input type="password" id="register-password" class="form-control" placeholder="পাসওয়ার্ড তৈরি করুন" required>
+            </div>
+            <div class="form-group">
+                <label for="register-gameid">ফ্রি ফায়ার গেম আইডি</label>
+                <input type="text" id="register-gameid" class="form-control" placeholder="আপনার ফ্রি ফায়ার গেম আইডি" required>
+            </div>
+            <div class="form-group">
+                <label for="register-phone">ফোন নম্বর</label>
+                <input type="text" id="register-phone" class="form-control" placeholder="আপনার ফোন নম্বর" required>
+            </div>
+            <button id="register-btn" class="btn" style="width: 100%">
+                <i class="fas fa-user-plus"></i> রেজিস্ট্রেশন করুন
+            </button>
+            <p style="text-align: center; margin-top: 20px; color: var(--gray);">
+                ইতিমধ্যে একাউন্ট আছে? <a href="#" id="show-login" style="color: var(--primary);">লগইন করুন</a>
+            </p>
+            <p id="register-error" class="alert alert-error" style="display: none; margin-top: 15px;"></p>
+        </div>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="app-section" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-fire"></i>
+                    <h1>Free Fire Tourney</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-balance">
+                        <i class="fas fa-coins"></i>
+                        <span id="user-balance">0</span> টাকা
+                    </div>
+                    <button id="logout-btn" class="btn btn-danger btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> লগআউট
+                    </button>
+                </div>
+            </div>
+
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-target="tournaments">
+                    <i class="fas fa-trophy"></i> টুর্নামেন্ট
+                </div>
+                <div class="nav-tab" data-target="wallet">
+                    <i class="fas fa-wallet"></i> ওয়ালেট
+                </div>
+                <div class="nav-tab" data-target="registrations">
+                    <i class="fas fa-users"></i> আমার টুর্নামেন্ট রেজিস্ট্রেশন
+                </div>
+                <div class="nav-tab" data-target="winners">
+                    <i class="fas fa-award"></i> টুর্নামেন্ট বিজয়ী
+                </div>
+                <div class="nav-tab" data-target="videos">
+                    <i class="fas fa-video"></i> ভিডিও
+                </div>
+                <div class="nav-tab" data-target="support">
+                    <i class="fas fa-headset"></i> সাপোর্ট
+                </div>
+                <div class="nav-tab" data-target="notices">
+                    <i class="fas fa-bullhorn"></i> নোটিশ
+                </div>
+                <div class="nav-tab" data-target="profile">
+                    <i class="fas fa-user"></i> প্রোফাইল
+                </div>
+            </div>
+
+            <!-- ================================== -->
+            <!--   ** পরিবর্তিত টুর্নামেন্ট সেকশন **   -->
+            <!-- ================================== -->
+            <div id="tournaments" class="section active">
+                <!-- সক্রিয় টুর্নামেন্ট কার্ড -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-trophy"></i> সক্রিয় টুর্নামেন্ট</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="tournament-grid" id="active-tournament-list">
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- নিষ্ক্রিয় টুর্নামেন্ট কার্ড -->
+                <div class="card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <h3 style="color: var(--gray);"><i class="fas fa-history"></i> নিষ্ক্রিয় টুর্নামেন্ট</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="tournament-grid" id="inactive-tournament-list">
+                            <div class="empty-state">
+                                <i class="fas fa-folder-open"></i>
+                                <p>কোনো নিষ্ক্রিয় টুর্নামেন্ট নেই</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Wallet Section -->
+            <div id="wallet" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-wallet"></i> আমার ওয়ালেট</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h2 style="font-size: 2.5rem; color: var(--success); margin-bottom: 10px;">
+                                <span id="wallet-balance">0</span> টাকা
+                            </h2>
+                            <p style="color: var(--gray);">বর্তমান ব্যালেন্স</p>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-money-bill-wave"></i> টাকা জমা</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="payment-instructions" class="info-box">
+                                        <div class="loading-spinner" style="margin: 0 auto;"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="deposit-amount">পরিমাণ</label>
+                                        <input type="number" id="deposit-amount" class="form-control" placeholder="টাকার পরিমাণ লিখুন">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="deposit-method">পদ্ধতি</label>
+                                        <select id="deposit-method" class="form-control">
+                                            <option value="bkash">বিকাশ</option>
+                                            <option value="nagad">নগদ</option>
+                                            <option value="rocket">রকেট</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="deposit-number">সেন্ডার নম্বর</label>
+                                        <input type="text" id="deposit-number" class="form-control" placeholder="যে নম্বর থেকে পাঠাবেন">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="deposit-transaction">ট্রানজেকশন আইডি</label>
+                                        <input type="text" id="deposit-transaction" class="form-control" placeholder="ট্রানজেকশন আইডি লিখুন">
+                                    </div>
+                                    <button id="deposit-btn" class="btn btn-success">
+                                        <i class="fas fa-money-check"></i> জমা অনুরোধ করুন
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-hand-holding-usd"></i> টাকা উত্তোলন</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="withdraw-amount">পরিমাণ</label>
+                                        <input type="number" id="withdraw-amount" class="form-control" placeholder="টাকার পরিমাণ লিখুন">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="withdraw-method">পদ্ধতি</label>
+                                        <select id="withdraw-method" class="form-control">
+                                            <option value="bkash">বিকাশ</option>
+                                            <option value="nagad">নগদ</option>
+                                            <option value="rocket">রকেট</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="withdraw-number">রিসিভার নম্বর</label>
+                                        <input type="text" id="withdraw-number" class="form-control" placeholder="যে নম্বরে উত্তোলন করতে চান">
+                                    </div>
+                                    <button id="withdraw-btn" class="btn btn-warning">
+                                        <i class="fas fa-money-bill-wave"></i> উত্তোলন অনুরোধ করুন
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- অতিরিক্ত অপশন: সাপোর্ট এবং ভিডিও -->
+                        <div class="additional-options">
+                            <div class="option-card" onclick="showSection('support')">
+                                <i class="fas fa-headset"></i>
+                                <h3>সাপোর্ট</h3>
+                                <p>কোনো সমস্যা বা প্রশ্ন থাকলে আমাদের সাথে যোগাযোগ করুন</p>
+                            </div>
+                            <div class="option-card" onclick="showVideosModal()">
+                                <i class="fas fa-video"></i>
+                                <h3>ভিডিও টিউটোরিয়াল</h3>
+                                <p>টাকা জমা ও উত্তোলনের ভিডিও টিউটোরিয়াল দেখুন</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-header">
+                                <h3><i class="fas fa-history"></i> লেনদেনের ইতিহাস</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>তারিখ</th>
+                                                <th>বিবরণ</th>
+                                                <th>পরিমাণ</th>
+                                                <th>স্ট্যাটাস</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="transaction-history">
+                                            <tr>
+                                                <td colspan="4" class="empty-state">
+                                                    <i class="fas fa-history"></i>
+                                                    <p>কোনো লেনদেন নেই</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Registrations Section -->
+            <div id="registrations" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-users"></i> আমার টুর্নামেন্ট রেজিস্ট্রেশন</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>টুর্নামেন্ট</th>
+                                        <th>তারিখ</th>
+                                        <th>এন্ট্রি ফি</th>
+                                        <th>স্ট্যাটাস</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-registrations">
+                                    <tr>
+                                        <td colspan="4" class="empty-state">
+                                            <i class="fas fa-users-slash"></i>
+                                            <p>কোনো রেজিস্ট্রেশন নেই</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Winners Section -->
+            <div id="winners" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-award"></i> টুর্নামেন্ট বিজয়ী</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="tournament-select">টুর্নামেন্ট সিলেক্ট করুন</label>
+                            <select id="tournament-select" class="form-control">
+                                <option value="">একটি টুর্নামেন্ট নির্বাচন করুন</option>
+                            </select>
+                        </div>
+                        <div id="winners-display" class="winner-cards-container">
+                            <div class="empty-state">
+                                <i class="fas fa-trophy"></i>
+                                <p>একটি টুর্নামেন্ট নির্বাচন করুন</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Section -->
+            <div id="videos" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-video"></i> ভিডিও টিউটোরিয়াল</h3>
+                    </div>
+                    <div class="card-body" id="video-list">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support Section -->
+            <div id="support" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-headset"></i> কাস্টমার সাপোর্ট</h3>
+                    </div>
+                    <div class="card-body" id="support-info">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notices Section -->
+            <div id="notices" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bullhorn"></i> গুরুত্বপূর্ণ নোটিশ</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="notices-list">
+                            <div class="empty-state">
+                                <i class="fas fa-bullhorn"></i>
+                                <p>কোনো নোটিশ নেই</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profile" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user"></i> আমার প্রোফাইল</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="profile-update-alert" class="profile-update-alert"></div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+                            <div style="text-align: center;">
+                                <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--darker); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 3rem;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <h2 id="profile-name">নাম</h2>
+                                <p id="profile-gameid" style="color: var(--gray); margin-bottom: 20px;">গেম আইডি: </p>
+                                <div class="user-balance" style="display: inline-flex;">
+                                    <i class="fas fa-coins"></i>
+                                    <span id="profile-balance">0</span> টাকা
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 style="margin-bottom: 20px; color: var(--primary);">ব্যক্তিগত তথ্য</h3>
+                                <div class="form-group">
+                                    <label for="profile-name-input">পুরো নাম</label>
+                                    <input type="text" id="profile-name-input" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-email">ইমেইল</label>
+                                    <input type="email" id="profile-email" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-phone">ফোন নম্বর</label>
+                                    <input type="text" id="profile-phone" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-gameid-input">ফ্রি ফায়ার গেম আইডি</label>
+                                    <input type="text" id="profile-gameid-input" class="form-control">
+                                </div>
+                                <button id="update-profile-btn" class="btn">
+                                    <i class="fas fa-save"></i> আপডেট করুন
+                                </button>
+                                
+                                <h3 style="margin: 30px 0 20px; color: var(--primary);">পাসওয়ার্ড পরিবর্তন</h3>
+                                <div class="form-group">
+                                    <label for="profile-current-password">বর্তমান পাসওয়ার্ড</label>
+                                    <input type="password" id="profile-current-password" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-new-password">নতুন পাসওয়ার্ড</label>
+                                    <input type="password" id="profile-new-password" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-confirm-password">পাসওয়ার্ড নিশ্চিত করুন</label>
+                                    <input type="password" id="profile-confirm-password" class="form-control">
+                                </div>
+                                <button id="change-password-btn" class="btn btn-secondary">
+                                    <i class="fas fa-key"></i> পাসওয়ার্ড পরিবর্তন
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament Registration Modal -->
+    <div id="register-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: var(--dark); border-radius: 10px; padding: 20px; width: 90%; max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="modal-tournament-name">টুর্নামেন্ট রেজিস্ট্রেশন</h3>
+                <button id="close-modal" style="background: none; border: none; color: var(--light); font-size: 1.5rem; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="form-group">
+                <label for="player-name">খেলোয়াড়ের নাম</label>
+                <input type="text" id="player-name" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="player-id">গেম আইডি</label>
+                <input type="text" id="player-id" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="player-character-id">ক্যারেক্টার আইডি</label>
+                <input type="text" id="player-character-id" class="form-control" placeholder="ঐচ্ছিক">
+            </div>
+            <div class="form-group">
+                <label for="player-team">টিম নাম</label>
+                <input type="text" id="player-team" class="form-control" placeholder="ঐচ্ছিক">
+            </div>
+            <div class="form-group">
+                <label for="payment-method">পেমেন্ট পদ্ধতি</label>
+                <p>*Note: আপনার পছন্দের পেমেন্ট পদ্ধতি নির্বাচন করুন।</p>
+                <p style="color: var(--warning); font-size: 0.9rem;">যদি আপনি ওয়ালেট ব্যালেন্স থেকে পেমেন্ট করতে চান, তাহলে "ওয়ালেট ব্যালেন্স" নির্বাচন করুন।</p>
+                <p style="color: var(--danger); font-size: 0.9rem;">যদি আপনার ব্যালেন্স যথেষ্ট না হয়, তাহলে বিকাশ/নগদ/রকেট থেকে পেমেন্ট করুন।</p>
+                <select id="payment-method" class="form-control">
+                    <option value="bkash">বিকাশ</option>
+                    <option value="nagad">নগদ</option>
+                    <option value="rocket">রকেট</option>
+                    <option value="balance">ওয়ালেট ব্যালেন্স</option>
+                </select>
+            </div>
+            <div id="payment-details" class="payment-details">
+                <div class="form-group">
+                    <label for="payment-number">পেমেন্ট নম্বর</label>
+                    <input type="text" id="payment-number" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="payment-transaction">ট্রানজেকশন আইডি</label>
+                    <input type="text" id="payment-transaction" class="form-control">
+                </div>
+            </div>
+            <div id="balance-info" class="payment-details hidden">
+                <div class="info-box">
+                    <p>ওয়ালেট থেকে <span id="fee-amount">0</span> টাকা কেটে নেওয়া হবে</p>
+                    <p>বর্তমান ব্যালেন্স: <span id="current-balance">0</span> টাকা</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="confirm-registration" class="btn btn-success">নিশ্চিত করুন</button>
+                <button id="cancel-registration" class="btn btn-danger">বাতিল</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Videos Modal -->
+    <div id="videos-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: var(--dark); border-radius: 10px; padding: 20px; width: 90%; max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3><i class="fas fa-video"></i> ভিডিও টিউটোরিয়াল</h3>
+                <button id="close-videos-modal" style="background: none; border: none; color: var(--light); font-size: 1.5rem; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="video-modal-content" style="text-align: center;">
+                <!-- Dynamic content will go here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament Detail Modal -->
+    <div id="tournament-detail-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: var(--dark); border-radius: 10px; padding: 20px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="detail-modal-title">টুর্নামেন্ট বিস্তারিত</h3>
+                <button id="close-detail-modal" style="background: none; border: none; color: var(--light); font-size: 1.5rem; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="tournament-detail-content">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlX00moQyuQBmeRWc2DqM_iIP6jIULUl8",
+            authDomain: "free-firetourney.firebaseapp.com",
+            projectId: "free-firetourney",
+            storageBucket: "free-firetourney.firebasestorage.app",
+            messagingSenderId: "469751688412",
+            appId: "1:469751688412:web:bf8db1bd109f1c978ad819"
+        };
+        
+        // Firebase initialization
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const registerSection = document.getElementById('register-section');
+        const appSection = document.getElementById('app-section');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const showRegisterBtn = document.getElementById('show-register');
+        const showLoginBtn = document.getElementById('show-login');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const profileUpdateAlert = document.getElementById('profile-update-alert');
+        const profileNameInput = document.getElementById('profile-name-input');
+        
+        // Current user data
+        let currentUser = null;
+        let currentTournament = null;
+        
+        // Show section function
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.nav-tab[data-target="${sectionId}"]`).classList.add('active');
+            
+            if (sectionId === 'tournaments') {
+                loadTournaments();
+            } else if (sectionId === 'wallet') {
+                loadWalletData();
+            } else if (sectionId === 'registrations') {
+                loadUserRegistrations();
+            } else if (sectionId === 'winners') {
+                loadWinners();
+            } else if (sectionId === 'notices') {
+                loadNotices();
+            } else if (sectionId === 'profile') {
+                loadProfile();
+            } else if (sectionId === 'support') { 
+                loadSupportInfo();
+            } else if (sectionId === 'videos') { 
+                loadVideos();
+            }
+        }
+        
+        // Auth state observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                loginSection.style.display = 'none';
+                registerSection.style.display = 'none';
+                appSection.style.display = 'block';
+                loadUserData();
+                loadTournaments();
+            } else {
+                currentUser = null;
+                loginSection.style.display = 'flex';
+                registerSection.style.display = 'none';
+                appSection.style.display = 'none';
+            }
+        });
+        
+        // Login functionality
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) {
+                showError(loginError, 'ইমেইল এবং পাসওয়ার্ড প্রয়োজন');
+                return;
+            }
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => { loginError.style.display = 'none'; })
+                .catch(error => { showError(loginError, 'লগইন ব্যর্থ: ' + error.message); });
+        });
+        
+        // Register functionality
+        registerBtn.addEventListener('click', () => {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const gameId = document.getElementById('register-gameid').value;
+            const phone = document.getElementById('register-phone').value;
+            if (!name || !email || !password || !gameId || !phone) {
+                showError(registerError, 'সমস্ত তথ্য প্রয়োজন');
+                return;
+            }
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    return db.collection('users').doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        gameUid: gameId,
+                        phone: phone,
+                        balance: 0,
+                        status: 'active',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => { registerError.style.display = 'none'; })
+                .catch(error => { showError(registerError, 'রেজিস্ট্রেশন ব্যর্থ: ' + error.message); });
+        });
+        
+        // Form switching
+        showRegisterBtn.addEventListener('click', e => {
+            e.preventDefault();
+            loginSection.style.display = 'none';
+            registerSection.style.display = 'flex';
+        });
+        showLoginBtn.addEventListener('click', e => {
+            e.preventDefault();
+            registerSection.style.display = 'none';
+            loginSection.style.display = 'flex';
+        });
+        
+        // Logout functionality
+        logoutBtn.addEventListener('click', () => { auth.signOut(); });
+        
+        // Navigation tabs
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                showSection(tab.getAttribute('data-target'));
+            });
+        });
+        
+        // Load user data
+        function loadUserData() {
+            if (!currentUser) return;
+            db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    document.getElementById('user-balance').textContent = userData.balance || 0;
+                    document.getElementById('wallet-balance').textContent = userData.balance || 0;
+                    document.getElementById('profile-balance').textContent = userData.balance || 0;
+                    document.getElementById('profile-name').textContent = userData.name || 'নাম';
+                    document.getElementById('profile-gameid').textContent = 'গেম আইডি: ' + (userData.gameUid || 'N/A');
+                    profileNameInput.value = userData.name || '';
+                    document.getElementById('profile-email').value = userData.email || '';
+                    document.getElementById('profile-phone').value = userData.phone || '';
+                    document.getElementById('profile-gameid-input').value = userData.gameUid || '';
+                }
+            }, error => console.error('Error loading user data:', error));
+        }
+        
+        // =====================================================================
+        // ** পরিবর্তিত এবং নতুন loadTournaments ফাংশন **
+        // =====================================================================
+        function loadTournaments() {
+            const activeTournamentList = document.getElementById('active-tournament-list');
+            const inactiveTournamentList = document.getElementById('inactive-tournament-list');
+
+            activeTournamentList.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+            inactiveTournamentList.innerHTML = ''; // Start empty, will be populated or show empty state
+
+            // সক্রিয় টুর্নামেন্ট লোড করা
+            db.collection('tournaments').where('status', '==', 'সক্রিয়').orderBy('order', 'asc').get()
+                .then(snapshot => {
+                    if (snapshot.empty) {
+                        activeTournamentList.innerHTML = `<div class="empty-state"><i class="fas fa-trophy"></i><p>কোনো সক্রিয় টুর্নামেন্ট নেই</p></div>`;
+                    } else {
+                        activeTournamentList.innerHTML = '';
+                        snapshot.forEach(doc => {
+    const tournament = doc.data();    
+    const totalPrize = (tournament.prize1 || 0) + (tournament.prize2 || 0) + (tournament.prize3 || 0);
+
+    const card = document.createElement('div');
+    card.className = 'tournament-card';
+    card.innerHTML = `<h4>${tournament.name || 'N/A'}</h4>
+        <div class="tournament-info">
+            <p><span class="label">তারিখ:</span> <span>${tournament.date || 'N/A'}</span></p>
+            <p><span class="label">সময়:</span> <span>${tournament.time || 'N/A'}</span></p>
+            <p><span class="label">এন্ট্রি ফি:</span> <span>${tournament.fee || 0} টাকা</span></p>
+            <p><span class="label">পুরস্কার:</span> <span>${totalPrize} টাকা</span></p>
+            <p><span class="label">স্লট:</span> <span>${tournament.slots || 0}</span></p>
+        </div>
+        <div class="tournament-actions">
+            <button class="btn btn-sm details-btn" data-id="${doc.id}"><i class="fas fa-info-circle"></i> বিস্তারিত</button>
+            <button class="btn btn-success btn-sm register-btn" data-id="${doc.id}" data-name="${tournament.name}" data-fee="${tournament.fee}"><i class="fas fa-user-plus"></i> রেজিস্টার</button>
+        </div>`;
+    activeTournamentList.appendChild(card);
+});
+                    }
+                    addEventListenersToButtons(); // বাটনগুলোর জন্য ইভেন্ট লিসেনার যোগ করা
+                })
+                .catch(error => {
+                    console.error("Error loading active tournaments: ", error);
+                    activeTournamentList.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>সক্রিয় টুর্নামেন্ট লোড করতে সমস্যা হয়েছে</p></div>`;
+                });
+
+            // নিষ্ক্রিয় টুর্নামেন্ট লোড করা
+            db.collection('tournaments').where('status', '==', 'নিষ্ক্রিয়').orderBy('inactiveTimestamp', 'desc').get()
+                .then(snapshot => {
+                    if (snapshot.empty) {
+                        inactiveTournamentList.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><p>কোনো নিষ্ক্রিয় টুর্নামেন্ট নেই</p></div>`;
+                    } else {
+                        inactiveTournamentList.innerHTML = '';
+                        snapshot.forEach(doc => {
+    const tournament = doc.data();    
+    const totalPrize = (tournament.prize1 || 0) + (tournament.prize2 || 0) + (tournament.prize3 || 0);
+
+    const card = document.createElement('div');
+    card.className = 'tournament-card';
+    card.style.opacity = '0.6';
+    card.innerHTML = `<h4>${tournament.name || 'N/A'}</h4>
+        <div class="tournament-info">
+            <p><span class="label">তারিখ:</span> <span>${tournament.date || 'N/A'}</span></p>
+            <p><span class="label">সময়:</span> <span>${tournament.time || 'N/A'}</span></p>
+            <p><span class="label">এন্ট্রি ফি:</span> <span>${tournament.fee || 0} টাকা</span></p>
+            <p><span class="label">পুরস্কার:</span> <span>${totalPrize} টাকা</span></p>
+        </div>
+        <div class="tournament-actions">
+            <button class="btn btn-sm details-btn" data-id="${doc.id}"><i class="fas fa-info-circle"></i> বিস্তারিত</button>
+        </div>`;
+    inactiveTournamentList.appendChild(card);
+});
+                    }
+                    addEventListenersToButtons(); // বাটনগুলোর জন্য ইভেন্ট লিসেনার যোগ করা
+                })
+                .catch(error => {
+                    console.error("Error loading inactive tournaments: ", error);
+                    inactiveTournamentList.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>নিষ্ক্রিয় টুর্নামেন্ট লোড করতে সমস্যা হয়েছে</p></div>`;
+                });
+        }
+        
+        // বাটনগুলোতে ইভেন্ট লিসেনার যোগ করার জন্য একটি হেল্পার ফাংশন
+        function addEventListenersToButtons() {
+            // বিস্তারিত বাটনে নতুন করে ইভেন্ট লিসেনার যোগ করুন
+            document.querySelectorAll('.details-btn').forEach(btn => {
+                // পুরানো লিসেনার থাকলে রিমুভ করে নতুন করে যোগ করা ভালো
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener('click', e => {
+                    const tournamentId = e.target.closest('.details-btn').dataset.id;
+                    showTournamentDetails(tournamentId);
+                });
+            });
+            
+            // রেজিস্টার বাটনে নতুন করে ইভেন্ট লিসেনার যোগ করুন
+            document.querySelectorAll('.register-btn').forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener('click', e => {
+                    const target = e.target.closest('.register-btn');
+                    showRegistrationModal(target.dataset.id, target.dataset.name, target.dataset.fee);
+                });
+            });
+        }
+        
+        // টুর্নামেন্ট বিস্তারিত দেখানোর ফাংশন
+        function showTournamentDetails(tournamentId) {
+            const tournamentDetailModal = document.getElementById('tournament-detail-modal');
+            tournamentDetailModal.style.display = 'flex';
+            const contentDiv = document.getElementById('tournament-detail-content');
+            contentDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+            
+            db.collection('tournaments').doc(tournamentId).get()
+                .then(doc => {
+                    if (!doc.exists) {
+                        contentDiv.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>টুর্নামেন্টের তথ্য পাওয়া যায়নি</p></div>';
+                        return;
+                    }
+                    
+                    const tournament = doc.data();
+                    document.getElementById('detail-modal-title').textContent = tournament.name || 'টুর্নামেন্ট বিস্তারিত';
+                    
+                    let detailsHTML = `
+                        <div class="tournament-info" style="margin-bottom: 20px;">
+                            <p><span class="label">টুর্নামেন্ট নাম:</span> <span>${tournament.name || 'N/A'}</span></p>
+                            <p><span class="label">সময়:</span> <span>${tournament.time || 'N/A'}</span></p>
+                            <p><span class="label">তারিখ:</span> <span>${tournament.date || 'N/A'}</span></p>
+                            <p><span class="label">এন্ট্রি ফি:</span> <span>${tournament.fee || 0} টাকা</span></p>
+                            <p><span class="label">পুরস্কার:</span> <span>${tournament.prize || 0} টাকা</span></p>
+                            <p><span class="label">স্লট:</span> <span>${tournament.slots || 0}</span></p>
+                            <p><span class="label">নিয়ম ও শর্তাবলী:</span> <span>${tournament.rules || 'N/A'}</span></p>
+                            <p><span class="label">বর্ণনা:</span> <span>${tournament.description || 'N/A'}</span></p>
+                        </div>
+                    `;
+                    
+                    contentDiv.innerHTML = detailsHTML;
+                })
+                .catch(error => {
+                    console.error("Error loading tournament details: ", error);
+                    contentDiv.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>টুর্নামেন্টের তথ্য লোড করতে সমস্যা হয়েছে</p></div>';
+                });
+        }
+        
+        document.getElementById('close-detail-modal').addEventListener('click', () => {
+            document.getElementById('tournament-detail-modal').style.display = 'none';
+        });
+        
+        // Registration modal 
+        function showRegistrationModal(id, name, fee) {
+            currentTournament = { id, name, fee };
+            document.getElementById('modal-tournament-name').textContent = name + ' - রেজিস্ট্রেশন';
+            
+            const profileName = document.getElementById('profile-name-input').value;
+            const profileGameId = document.getElementById('profile-gameid-input').value;
+            
+            document.getElementById('player-name').value = profileName;
+            document.getElementById('player-id').value = profileGameId;
+
+            document.getElementById('register-modal').style.display = 'flex';
+            
+            document.getElementById('fee-amount').textContent = fee;
+            
+            const currentBalance = parseFloat(document.getElementById('user-balance').textContent);
+            document.getElementById('current-balance').textContent = currentBalance;
+            
+            document.getElementById('payment-method').value = 'balance';
+            togglePaymentDetails();
+        }
+
+        function togglePaymentDetails() {
+            const method = document.getElementById('payment-method').value;
+            const paymentDetails = document.getElementById('payment-details');
+            const balanceInfo = document.getElementById('balance-info');
+            
+            if (method === 'balance') {
+                paymentDetails.classList.add('hidden');
+                balanceInfo.classList.remove('hidden');
+            } else {
+                paymentDetails.classList.remove('hidden');
+                balanceInfo.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('payment-method').addEventListener('change', togglePaymentDetails);
+
+        document.getElementById('close-modal').addEventListener('click', () => { 
+            document.getElementById('register-modal').style.display = 'none'; 
+        });
+        
+        document.getElementById('cancel-registration').addEventListener('click', () => { 
+            document.getElementById('register-modal').style.display = 'none'; 
+        });
+        
+        document.getElementById('confirm-registration').addEventListener('click', () => {
+            const registrationData = {
+                tournamentId: currentTournament.id,
+                tournamentName: currentTournament.name,
+                entryFee: Number(currentTournament.fee),
+                userId: currentUser.uid,
+                playerName: document.getElementById('player-name').value,
+                playerId: document.getElementById('player-id').value,
+                characterId: document.getElementById('player-character-id').value,
+                teamName: document.getElementById('player-team').value,
+                paymentMethod: document.getElementById('payment-method').value,
+                paymentNumber: document.getElementById('payment-number').value,
+                paymentTransaction: document.getElementById('payment-transaction').value,
+                paymentStatus: 'pending',
+                registrationDate: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (!registrationData.playerName || !registrationData.playerId) {
+                alert('খেলোয়াড়ের নাম এবং গেম আইডি অবশ্যই দিতে হবে');
+                return;
+            }
+            
+            if (registrationData.paymentMethod !== 'balance') {
+                if (!registrationData.paymentNumber || !registrationData.paymentTransaction) {
+                    alert('পেমেন্ট নম্বর এবং ট্রানজেকশন আইডি অবশ্যই দিতে হবে');
+                    return;
+                }
+            }
+            
+            if (registrationData.paymentMethod === 'balance') {
+                const currentBalance = parseFloat(document.getElementById('user-balance').textContent);
+                if (currentBalance < registrationData.entryFee) {
+                    alert('আপনার পর্যাপ্ত ব্যালেন্স নেই! দয়া করে অন্য কোন পদ্ধতি ব্যবহার করুন।');
+                    return;
+                }
+                
+                db.collection('users').doc(currentUser.uid).update({
+                    balance: firebase.firestore.FieldValue.increment(-registrationData.entryFee)
+                })
+                .then(() => {
+                    return db.collection('transactions').add({
+                        userId: currentUser.uid,
+                        amount: registrationData.entryFee,
+                        type: 'entry_fee',
+                        description: `টুর্নামেন্ট এন্ট্রি ফি: ${registrationData.tournamentName}`,
+                        date: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'completed'
+                    });
+                })
+                .then(() => {
+                    registrationData.paymentStatus = 'approved';
+                    return db.collection('registrations').add(registrationData);
+                })
+                .then(() => {
+                    alert('রেজিস্ট্রেশন সফল! এন্ট্রি ফি আপনার ব্যালেন্স থেকে কেটে নেওয়া হয়েছে।');
+                    document.getElementById('register-modal').style.display = 'none';
+                    resetRegistrationForm();
+                })
+                .catch(error => { 
+                    alert('রেজিস্ট্রেশন জমা দিতে সমস্যা: ' + error.message); 
+                });
+            } else {
+                db.collection('registrations').add(registrationData)
+                    .then(() => {
+                        alert('রেজিস্ট্রেশন সফলভাবে জমা হয়েছে! অনুমোদনের জন্য অপেক্ষা করুন।');
+                        document.getElementById('register-modal').style.display = 'none';
+                        resetRegistrationForm();
+                    })
+                    .catch(error => { 
+                        alert('রেজিস্ট্রেশন জমা দিতে সমস্যা: ' + error.message); 
+                    });
+            }
+        });
+        
+        function resetRegistrationForm() {
+            document.getElementById('player-name').value = '';
+            document.getElementById('player-id').value = '';
+            document.getElementById('player-character-id').value = '';
+            document.getElementById('player-team').value = '';
+            document.getElementById('payment-number').value = '';
+            document.getElementById('payment-transaction').value = '';
+        }
+        
+        function loadWalletData() {
+            if (!currentUser) return;
+            const instructionsDiv = document.getElementById('payment-instructions');
+            db.collection('settings').doc('paymentDetails').get().then(doc => {
+                if(doc.exists) {
+                    const data = doc.data();
+                    let numbersHTML = '';
+                    if (data.bkashNumber) numbersHTML += `<p><strong>বিকাশ:</strong> ${data.bkashNumber}</p>`;
+                    if (data.nagadNumber) numbersHTML += `<p><strong>নগদ:</strong> ${data.nagadNumber}</p>`;
+                    if (data.rocketNumber) numbersHTML += `<p><strong>রকেট:</strong> ${data.rocketNumber}</p>`;
+                    
+                    instructionsDiv.innerHTML = `<h4><i class="fas fa-info-circle"></i> টাকা পাঠানোর নিয়মাবলী</h4><ol><li>নিচের যেকোনো একটি নম্বরে টাকা পাঠান (বিকাশ/নগদ/রকেট)</li><li>টাকা পাঠানোর পর ট্রানজেকশন আইডি নিশ্চিত করুন</li><li>ডান পাশের ফর্মটি পূরণ করে জমা দিন</li><li>অ্যাডমিন আপনার ট্রানজেকশন ভেরিফাই করার পর ব্যালেন্স আপডেট হবে</li><li>কোনো সমস্যা হলে সাপোর্টে যোগাযোগ করুন</li></ol><h4><i class="fas fa-phone"></i> পেমেন্ট নম্বরসমূহ</h4>${numbersHTML || '<p>এখন কোনো পেমেন্ট নম্বর যোগ করা নেই।</p>'}`;
+                } else {
+                     instructionsDiv.innerHTML = `<p>টাকা পাঠানোর নিয়মাবলী লোড করা যায়নি।</p>`;
+                }
+            }).catch(err => {
+                 instructionsDiv.innerHTML = `<p>একটি ত্রুটি ঘটেছে।</p>`;
+            });
+
+            const transactionsPromise = db.collection('transactions').where('userId', '==', currentUser.uid).get();
+            const depositsPromise = db.collection('deposits').where('userId', '==', currentUser.uid).get();
+            const withdrawalsPromise = db.collection('withdrawals').where('userId', '==', currentUser.uid).get();
+
+            Promise.all([transactionsPromise, depositsPromise, withdrawalsPromise])
+                .then(([transactionsSnapshot, depositsSnapshot, withdrawalsSnapshot]) => {
+                    let allTransactions = [];
+
+                    transactionsSnapshot.forEach(doc => {
+                        const t = doc.data();
+                        allTransactions.push({ date: t.date ? t.date.toDate() : new Date(), description: t.description, amount: t.amount, status: t.status, type: t.type || 'general' });
+                    });
+
+                    depositsSnapshot.forEach(doc => {
+                        const d = doc.data();
+                        allTransactions.push({ date: d.requestDate ? d.requestDate.toDate() : new Date(), description: 'টাকা জমা অনুরোধ', amount: d.amount, status: d.status, type: 'deposit' });
+                    });
+
+                    withdrawalsSnapshot.forEach(doc => {
+                        const w = doc.data();
+                        allTransactions.push({ date: w.requestDate ? w.requestDate.toDate() : new Date(), description: 'টাকা উত্তোলন অনুরোধ', amount: w.amount, status: w.status, type: 'withdrawal' });
+                    });
+
+                    allTransactions.sort((a, b) => b.date - a.date);
+
+                    const tbody = document.getElementById('transaction-history');
+                    if (allTransactions.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="empty-state"><i class="fas fa-history"></i><p>কোনো লেনদেন নেই</p></td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = '';
+                    allTransactions.forEach(t => {
+                        const date = t.date.toLocaleDateString('bn-BD');
+                        const statusClass = t.status === 'completed' || t.status === 'approved' ? 'success' : t.status === 'pending' ? 'warning' : 'danger';
+                        const statusText = t.status === 'completed' ? 'সম্পন্ন' : t.status === 'pending' ? 'অপেক্ষমান' : t.status === 'rejected' ? 'বাতিল' : t.status;
+                        const status = `<span class="badge badge-${statusClass}">${statusText}</span>`;
+                        
+                        let amountSign = '';
+                        let amountColor = '';
+
+                        if (t.type === 'deposit' || t.type === 'prize_win') {
+                            amountSign = '+';
+                            amountColor = 'var(--success)';
+                        } else if (t.type === 'withdrawal' || t.type === 'entry_fee') {
+                            amountSign = '-';
+                            amountColor = 'var(--danger)';
+                        }
+                        
+                        tbody.innerHTML += `<tr><td>${date}</td><td>${t.description}</td><td style="color: ${amountColor}; font-weight: bold;">${amountSign}${t.amount} টাকা</td><td>${status}</td></tr>`;
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading combined transaction history: ", error);
+                    const tbody = document.getElementById('transaction-history');
+                    tbody.innerHTML = `<tr><td colspan="4" class="empty-state"><i class="fas fa-exclamation-circle"></i><p>লেনদেন লোড করতে সমস্যা হয়েছে</p></td></tr>`;
+                });
+        }
+        
+        document.getElementById('deposit-btn').addEventListener('click', () => {
+            const amount = document.getElementById('deposit-amount').value;
+            const method = document.getElementById('deposit-method').value;
+            const number = document.getElementById('deposit-number').value;
+            const transactionId = document.getElementById('deposit-transaction').value;
+            
+            if (!amount || !method || !number || !transactionId) {
+                alert('সমস্ত তথ্য পূরণ করুন');
+                return;
+            }
+            
+            const depositData = {
+                userId: currentUser.uid, amount: parseFloat(amount), method: method, senderNumber: number, transactionId: transactionId, status: 'pending', requestDate: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            db.collection('deposits').add(depositData).then(() => {
+                alert('টাকা জমার অনুরোধ সফলভাবে জমা হয়েছে!');
+                document.getElementById('deposit-amount').value = '';
+                document.getElementById('deposit-number').value = '';
+                document.getElementById('deposit-transaction').value = '';
+                loadWalletData();
+            }).catch(error => { alert('টাকা জমার অনুরোধ জমা দিতে সমস্যা: ' + error.message); });
+        });
+        
+        document.getElementById('withdraw-btn').addEventListener('click', () => {
+            const amount = document.getElementById('withdraw-amount').value;
+            const method = document.getElementById('withdraw-method').value;
+            const number = document.getElementById('withdraw-number').value;
+            
+            if (!amount || !method || !number) {
+                alert('সমস্ত তথ্য পূরণ করুন');
+                return;
+            }
+            
+            const balance = parseFloat(document.getElementById('wallet-balance').textContent);
+            if (parseFloat(amount) > balance) {
+                alert('আপনার পর্যাপ্ত ব্যালেন্স নেই');
+                return;
+            }
+            
+            const withdrawalData = {
+                userId: currentUser.uid, amount: parseFloat(amount), method: method, receiverNumber: number, status: 'pending', requestDate: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            db.collection('withdrawals').add(withdrawalData).then(() => {
+                alert('টাকা উত্তোলনের অনুরোধ সফলভাবে জমা হয়েছে!');
+                document.getElementById('withdraw-amount').value = '';
+                document.getElementById('withdraw-number').value = '';
+                loadWalletData();
+            }).catch(error => { alert('টাকা উত্তোলনের অনুরোধ জমা দিতে সমস্যা: ' + error.message); });
+        });
+        
+        function loadUserRegistrations() {
+            if (!currentUser) return;
+            const userRegistrations = document.getElementById('user-registrations');
+            userRegistrations.innerHTML = '<tr><td colspan="4" class="loading"><div class="loading-spinner"></div></td></tr>';
+            
+            db.collection('registrations').where('userId', '==', currentUser.uid).orderBy('registrationDate', 'desc').get()
+                .then(snapshot => {
+                    userRegistrations.innerHTML = '';
+                    if (snapshot.empty) {
+                        userRegistrations.innerHTML = `<tr><td colspan="4" class="empty-state"><i class="fas fa-users-slash"></i><p>কোনো রেজিস্ট্রেশন নেই</p></td></tr>`;
+                        return;
+                    }
+                    snapshot.forEach(doc => {
+                        const registration = doc.data();
+                        const date = registration.registrationDate ? registration.registrationDate.toDate().toLocaleDateString('bn-BD') : 'তারিখ নেই';
+                        const statusClass = `badge badge-${registration.paymentStatus === 'approved' ? 'success' : registration.paymentStatus === 'pending' ? 'warning' : 'danger'}`;
+                        const statusText = registration.paymentStatus === 'approved' ? 'অনুমোদিত' : registration.paymentStatus === 'pending' ? 'অপেক্ষমান' : 'বাতিল';
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${registration.tournamentName || 'N/A'}</td><td>${date}</td><td>${registration.entryFee || 0} টাকা</td><td><span class="${statusClass}">${statusText}</span></td>`;
+                        userRegistrations.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading registrations: ", error);
+                    userRegistrations.innerHTML = `<tr><td colspan="4" class="empty-state"><i class="fas fa-exclamation-circle"></i><p>টুর্নামেন্ট রেজিস্ট্রেশন লোড করতে সমস্যা হয়েছে</p></td></tr>`;
+                });
+        }
+        
+        function loadWinners() {
+    const tournamentSelect = document.getElementById('tournament-select');
+    tournamentSelect.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+
+    // ##### পরিবর্তিত কোয়েরি #####
+    db.collection('tournaments').where('status', '==', 'নিষ্ক্রিয়').orderBy('inactiveTimestamp', 'desc').get().then(snapshot => {
+        
+        tournamentSelect.innerHTML = '<option value="">একটি সমাপ্ত টুর্নামেন্ট নির্বাচন করুন</option>';
+        
+        if (snapshot.empty) {
+            tournamentSelect.innerHTML = '<option value="">কোনো সমাপ্ত টুর্নামেন্ট নেই</option>';
+            return;
+        }
+
+        snapshot.forEach(doc => {
+            const tournament = doc.data();
+            const option = document.createElement('option');
+            option.value = doc.id;
+            option.textContent = tournament.name; // টুর্নামেন্টের নাম
+            tournamentSelect.appendChild(option);
+        });
+    }).catch(error => {
+        console.error("Error loading inactive tournaments for winners page: ", error);
+        tournamentSelect.innerHTML = '<option value="">লোড করতে সমস্যা হয়েছে</option>';
+    });
+
+    tournamentSelect.addEventListener('change', (e) => {
+        const tournamentId = e.target.value;
+        if (tournamentId) {
+            displayWinners(tournamentId);
+        } else {
+            document.getElementById('winners-display').innerHTML = `<div class="empty-state"><i class="fas fa-trophy"></i><p>একটি টুর্নামেন্ট নির্বাচন করুন</p></div>`;
+        }
+    });
+}
+        
+                async function displayWinners(tournamentId) {
+            const winnersDisplay = document.getElementById('winners-display');
+            winnersDisplay.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+            try {
+                // পরিবর্তন ১: কোয়েরিটি পরিবর্তন করে শুধুমাত্র টুর্নামেন্ট আইডি দিয়ে খোঁজা হচ্ছে
+                const winnersSnapshot = await db.collection('winners').where('tournamentId', '==', tournamentId).limit(1).get();
+
+                if (winnersSnapshot.empty) {
+                    winnersDisplay.innerHTML = `<div class="empty-state"><i class="fas fa-trophy"></i><p>এই টুর্নামেন্টের বিজয়ী এখনো ঘোষণা করা হয়নি</p></div>`;
+                    return;
+                }
+
+                // একটি মাত্র ডকুমেন্ট থেকে ডেটা নেওয়া হচ্ছে
+                const winnerDoc = winnersSnapshot.docs[0].data();
+                winnersDisplay.innerHTML = ''; // পুরোনো ডেটা মুছে ফেলা হচ্ছে
+
+                // পরিবর্তন ২: প্রতিটি স্থান (place) আলাদাভাবে চেক করে কার্ড তৈরি করা হচ্ছে
+                if (winnerDoc.firstPlace) {
+                    createWinnerCard(winnersDisplay, winnerDoc.firstPlace, 'প্রথম স্থান', 'first-place', 'fa-trophy');
+                }
+                if (winnerDoc.secondPlace) {
+                    createWinnerCard(winnersDisplay, winnerDoc.secondPlace, 'দ্বিতীয় স্থান', 'second-place', 'fa-medal');
+                }
+                if (winnerDoc.thirdPlace) {
+                    createWinnerCard(winnersDisplay, winnerDoc.thirdPlace, 'তৃতীয় স্থান', 'third-place', 'fa-award');
+                }
+
+            } catch (error) {
+                console.error("Error fetching winners: ", error);
+                winnersDisplay.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>বিজয়ীদের তথ্য লোড করতে সমস্যা হয়েছে</p></div>`;
+            }
+        }
+
+        // একটি হেল্পার ফাংশন, যা বিজয়ীর কার্ড তৈরি করতে সাহায্য করবে
+        function createWinnerCard(container, winnerData, positionText, positionClass, icon) {
+            const card = document.createElement('div');
+            card.className = `winner-card ${positionClass}`;
+            card.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <h3>${positionText}</h3>
+                <p><strong>নাম:</strong> ${winnerData.userName || 'N/A'}</p>
+                <p><strong>গেম আইডি:</strong> ${winnerData.gameId || 'N/A'}</p>
+                <p class="prize"><strong>পুরস্কার:</strong> ${winnerData.prize || 0} টাকা</p>
+            `;
+            container.appendChild(card);
+        }
+        
+        function loadNotices() {
+            const noticesList = document.getElementById('notices-list');
+            noticesList.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+            db.collection('notices').orderBy('createdAt', 'desc').limit(10).get()
+                .then(snapshot => {
+                    if (snapshot.empty) {
+                        noticesList.innerHTML = `<div class="empty-state"><i class="fas fa-bullhorn"></i><p>কোনো নোটিশ নেই</p></div>`;
+                        return;
+                    }
+                    noticesList.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const n = doc.data();
+                        const date = n.createdAt ? n.createdAt.toDate().toLocaleDateString('bn-BD') : 'N/A';
+                        const priorityClass = n.priority === 'high' ? 'danger' : n.priority === 'medium' ? 'warning' : 'success';
+                        const priority = `<span class="badge badge-${priorityClass}" style="margin-left: 10px;">${n.priority}</span>`;
+                        noticesList.innerHTML += `<div class="card" style="margin-bottom: 15px;"><div class="card-header"><h3>${n.title} ${priority}</h3></div><div class="card-body"><p>${n.content}</p><p style="color: var(--gray); margin-top: 10px;">${date}</p></div></div>`;
+                    });
+                });
+        }
+
+        function loadSupportInfo() {
+            const supportDiv = document.getElementById('support-info');
+            supportDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+            db.collection('settings').doc('paymentDetails').get().then(doc => {
+                if(doc.exists) {
+                    const data = doc.data();
+                    supportDiv.innerHTML = `<div class="info-box" style="text-align: center;"><p style="font-size: 1.1rem; margin-bottom: 20px;">যেকোনো প্রয়োজনে আমাদের সাথে যোগাযোগ করুন।</p>${data.whatsappNumber ? `<a href="https://wa.me/${data.whatsappNumber}" target="_blank" class="btn btn-success"><i class="fab fa-whatsapp"></i> হোয়াটসঅ্যাপ</a>` : ''}${data.telegramLink ? `<a href="${data.telegramLink}" target="_blank" class="btn btn-secondary" style="margin-left: 10px;"><i class="fab fa-telegram-plane"></i> টেলিগ্রাম</a>` : ''}${data.supportEmail ? `<p style="margin-top: 20px;">অথবা ইমেইল করুন: <a href="mailto:${data.supportEmail}" style="color: var(--primary);">${data.supportEmail}</a></p>` : ''}</div>`;
+                } else {
+                    supportDiv.innerHTML = `<div class="empty-state"><i class="fas fa-headset"></i><p>সাপোর্ট তথ্য পাওয়া যায়নি।</p></div>`;
+                }
+            }).catch(err => {
+                supportDiv.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>তথ্য লোড করতে সমস্যা হয়েছে।</p></div>`;
+            });
+        }
+        
+        function loadVideos() {
+            const videoList = document.getElementById('video-list');
+            videoList.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+            db.collection('settings').doc('paymentDetails').get().then(doc => {
+                if (!doc.exists) {
+                    videoList.innerHTML = `<div class="empty-state"><i class="fas fa-video-slash"></i><p>কোনো ভিডিও পাওয়া যায়নি।</p></div>`;
+                    return;
+                }
+                const data = doc.data();
+                const videoLinks = [data.youtubeLink, data.videoLink1, data.videoLink2, data.videoLink3].filter(Boolean);
+
+                if (videoLinks.length === 0) {
+                    videoList.innerHTML = `<div class="empty-state"><i class="fas fa-video-slash"></i><p>কোনো ভিডিও পাওয়া যায়নি।</p></div>`;
+                    return;
+                }
+                
+                videoList.innerHTML = '';
+                videoLinks.forEach((link, index) => {
+                    let embedUrl = link.replace("watch?v=", "embed/");
+                    const videoElement = document.createElement('div');
+                    videoElement.innerHTML = `<h4 style="margin-bottom: 10px; color: var(--primary);">ভিডিও ${index + 1}</h4><div class="video-container"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+                    videoList.appendChild(videoElement);
+                });
+            }).catch(err => {
+                videoList.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>ভিডিও লোড করতে সমস্যা হয়েছে।</p></div>`;
+            });
+        }
+        
+        function loadProfile() { /* Data is already loaded by loadUserData */ }
+        
+        document.getElementById('update-profile-btn').addEventListener('click', () => {
+            const updateData = {
+                name: profileNameInput.value,
+                phone: document.getElementById('profile-phone').value,
+                gameUid: document.getElementById('profile-gameid-input').value
+            };
+            if (!updateData.name || !updateData.phone || !updateData.gameUid) {
+                showProfileAlert('সমস্ত প্রয়োজনীয় তথ্য প্রদান করুন', 'error');
+                return;
+            }
+            db.collection('users').doc(currentUser.uid).update(updateData)
+                .then(() => { showProfileAlert('প্রোফাইল সফলভাবে আপডেট হয়েছে!', 'success'); })
+                .catch(error => { showProfileAlert('প্রোফাইল আপডেট করতে সমস্যা: ' + error.message, 'error'); });
+        });
+        
+        document.getElementById('change-password-btn').addEventListener('click', () => {
+            const currentPass = document.getElementById('profile-current-password').value;
+            const newPass = document.getElementById('profile-new-password').value;
+            const confirmPass = document.getElementById('profile-confirm-password').value;
+            
+            if (!currentPass || !newPass || !confirmPass) {
+                 alert('অনুগ্রহ করে সবগুলো পাসওয়ার্ড ফিল্ড পূরণ করুন।');
+                 return;
+            }
+            if (newPass !== confirmPass) {
+                alert('নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মেলে না');
+                return;
+            }
+            const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPass);
+            currentUser.reauthenticateWithCredential(credential)
+                .then(() => currentUser.updatePassword(newPass))
+                .then(() => {
+                    alert('পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!');
+                    document.getElementById('profile-current-password').value = '';
+                    document.getElementById('profile-new-password').value = '';
+                    document.getElementById('profile-confirm-password').value = '';
+                })
+                .catch(error => { alert('পাসওয়ার্ড পরিবর্তন করতে সমস্যা: ' + error.message); });
+        });
+
+        function showVideosModal() {
+            const videoModal = document.getElementById('videos-modal');
+            const videoModalContent = document.getElementById('video-modal-content');
+            
+            videoModalContent.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+            videoModal.style.display = 'flex';
+
+            db.collection('settings').doc('paymentDetails').get().then(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    const depositLink = data.depositVideoLink;
+                    const withdrawalLink = data.withdrawalVideoLink;
+                    let contentHTML = '';
+
+                    if (depositLink) {
+                        let embedUrl = depositLink.replace("watch?v=", "embed/").split('&')[0];
+                        contentHTML += `<div style="margin-bottom: 25px;"><h4 style="color: var(--primary); margin-bottom: 10px;">টাকা জমা করার ভিডিও</h4><div class="video-container"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>`;
+                    }
+
+                    if (withdrawalLink) {
+                        let embedUrl = withdrawalLink.replace("watch?v=", "embed/").split('&')[0];
+                        contentHTML += `<div><h4 style="color: var(--primary); margin-bottom: 10px;">টাকা উত্তোলন করার ভিডিও</h4><div class="video-container"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>`;
+                    }
+                    
+                    if (!depositLink && !withdrawalLink) {
+                        contentHTML = `<div class="empty-state"><i class="fas fa-video-slash"></i><p>কোনো টিউটোরিয়াল ভিডিও পাওয়া যায়নি।</p></div>`;
+                    }
+
+                    videoModalContent.innerHTML = contentHTML;
+
+                } else {
+                    videoModalContent.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>ভিডিও লোড করতে সমস্যা হয়েছে।</p></div>`;
+                }
+            }).catch(err => {
+                videoModalContent.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>ভিডিও লোড করতে সমস্যা হয়েছে।</p></div>`;
+            });
+        }
+ 
+        document.getElementById('close-videos-modal').addEventListener('click', () => {
+            const videoModal = document.getElementById('videos-modal');
+            const videoModalContent = document.getElementById('video-modal-content');
+            videoModalContent.innerHTML = '';
+            videoModal.style.display = 'none';
+        });
+        
+        // Utility functions
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+        
+        function showProfileAlert(message, type) {
+            profileUpdateAlert.textContent = message;
+            profileUpdateAlert.className = `profile-update-alert profile-update-${type}`;
+            profileUpdateAlert.style.display = 'block';
+            setTimeout(() => { profileUpdateAlert.style.display = 'none'; }, 5000);
+        }
+    </script>
+</body>
+</html>
