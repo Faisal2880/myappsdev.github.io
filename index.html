@@ -3,191 +3,165 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aysha's Store</title>
+  <title>আমার ওয়েবসাইট</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: #fdf6f0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #ffffff, #e0f7fa);
       color: #333;
     }
     header {
-      background-color: #ff99cc;
+      background: linear-gradient(45deg, #ff6f61, #42a5f5);
       color: white;
       padding: 20px;
       text-align: center;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2em;
     }
     nav {
+      background: #333;
       display: flex;
       justify-content: center;
-      margin: 20px 0;
-      gap: 15px;
     }
     nav a {
+      color: white;
       text-decoration: none;
-      color: #ff3399;
-      font-weight: bold;
-      padding: 10px 15px;
-      border: 2px solid #ff3399;
-      border-radius: 5px;
-      transition: 0.3s;
+      padding: 14px 20px;
+      display: block;
     }
     nav a:hover {
-      background-color: #ff3399;
-      color: white;
+      background: #555;
     }
     section {
+      padding: 40px 20px;
       max-width: 900px;
       margin: auto;
-      padding: 20px;
     }
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
+    h2 {
+      color: #444;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .products, .blog {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
-      justify-content: center;
     }
     .card {
-      background-color: white;
+      background: white;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 15px;
-      width: 200px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 20px;
       text-align: center;
-      transition: 0.3s;
-    }
-    .card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-    .card h3 {
-      margin: 10px 0 5px 0;
-      font-size: 1.2em;
     }
     .card a {
       display: inline-block;
       margin-top: 10px;
-      padding: 8px 12px;
-      background-color: #ff3399;
+      background: #42a5f5;
       color: white;
+      padding: 10px 15px;
       text-decoration: none;
       border-radius: 5px;
-      transition: 0.3s;
     }
     .card a:hover {
-      background-color: #ff66b3;
+      background: #1e88e5;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    input, textarea, button {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    button {
+      background: #ff6f61;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #e64a19;
     }
     footer {
-      background-color: #ff99cc;
-      color: white;
       text-align: center;
+      background: #333;
+      color: white;
       padding: 15px;
       margin-top: 30px;
-    }
-    footer a {
-      color: white;
-      text-decoration: underline;
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>আমার ব্যক্তিগত ওয়েবসাইট</h1>
+    <p>প্রোডাক্ট, অ্যাপ ও ব্লগ শেয়ার করার প্ল্যাটফর্ম</p>
+  </header>
+  <nav>
+    <a href="#home">হোম</a>
+    <a href="#products">প্রোডাক্ট</a>
+    <a href="#blog">ব্লগ</a>
+    <a href="#contact">কন্টাক্ট</a>
+  </nav>
 
-<header>
-  <h1>Aysha's Store</h1>
-</header>
+  <section id="home">
+    <h2>স্বাগতম</h2>
+    <p>এটি আমার ফ্রি ওয়েবসাইট যেখানে আমি আমার প্রোডাক্ট, অ্যাপ এবং ব্লগ পোস্ট শেয়ার করি।</p>
+  </section>
 
-<nav>
-  <a href="#products">প্রোডাক্টস</a>
-  <a href="#apps">অ্যাপস</a>
-  <a href="#contact">যোগাযোগ</a>
-</nav>
+  <section id="products">
+    <h2>প্রোডাক্ট ও অ্যাপ</h2>
+    <div class="products">
+      <div class="card">
+        <h3>প্রোডাক্ট ১</h3>
+        <p>এটি একটি স্যাম্পল প্রোডাক্টের বিবরণ।</p>
+        <a href="#">ডাউনলোড</a>
+      </div>
+      <div class="card">
+        <h3>প্রোডাক্ট ২</h3>
+        <p>এটি আরেকটি প্রোডাক্টের বিবরণ।</p>
+        <a href="#">ডাউনলোড</a>
+      </div>
+      <div class="card">
+        <h3>প্রোডাক্ট ৩</h3>
+        <p>এই প্রোডাক্টটি বিশেষ ফিচার সমৃদ্ধ।</p>
+        <a href="#">ডাউনলোড</a>
+      </div>
+    </div>
+  </section>
 
-<section id="products">
-  <h2 style="text-align:center;">আমাদের প্রোডাক্টস</h2>
-  <div class="grid" id="productGrid">
-    <!-- প্রোডাক্ট কার্ড এখানে ডাইনামিক লোড হবে -->
-  </div>
-</section>
+  <section id="blog">
+    <h2>ব্লগ পোস্ট</h2>
+    <div class="blog">
+      <div class="card">
+        <h3>আমার প্রথম ব্লগ</h3>
+        <p>এখানে একটি ছোট ব্লগের অংশ দেখানো হলো।</p>
+        <a href="#">পুরোটা পড়ুন</a>
+      </div>
+      <div class="card">
+        <h3>টিপস ও ট্রিকস</h3>
+        <p>প্রোডাক্ট ব্যবহার করার কৌশল।</p>
+        <a href="#">পুরোটা পড়ুন</a>
+      </div>
+    </div>
+  </section>
 
-<section id="apps">
-  <h2 style="text-align:center;">আমাদের অ্যাপস</h2>
-  <div class="grid" id="appGrid">
-    <!-- অ্যাপ কার্ড এখানে ডাইনামিক লোড হবে -->
-  </div>
-</section>
+  <section id="contact">
+    <h2>যোগাযোগ</h2>
+    <form>
+      <input type="text" placeholder="আপনার নাম" required>
+      <input type="email" placeholder="আপনার ইমেইল" required>
+      <textarea placeholder="আপনার বার্তা..." rows="4" required></textarea>
+      <button type="submit">পাঠান</button>
+    </form>
+    <p>ইমেইল: example@gmail.com</p>
+    <p>ফেসবুক: <a href="#">আমার ফেসবুক</a></p>
+  </section>
 
-<section id="contact">
-  <h2 style="text-align:center;">যোগাযোগ করুন</h2>
-  <div style="text-align:center;">
-    <p>ইমেইল: <a href="mailto:aysha@example.com">aysha@example.com</a></p>
-    <p>ফোন: +880 1234 567890</p>
-    <p>ঠিকানা: ঢাকা, বাংলাদেশ</p>
-  </div>
-</section>
-
-<footer>
-  © 2025 Aysha's Store | <a href="mailto:aysha@example.com">Contact</a>
-</footer>
-
-<script>
-  // প্রোডাক্ট তথ্য
-  const products = [
-    {
-      name: "প্রোডাক্ট ১",
-      img: "https://via.placeholder.com/200x150.png?text=Product+1",
-      link: "#"
-    },
-    {
-      name: "প্রোডাক্ট ২",
-      img: "https://via.placeholder.com/200x150.png?text=Product+2",
-      link: "#"
-    },
-    // নতুন প্রোডাক্ট এখানে যোগ করুন
-  ];
-
-  // অ্যাপ তথ্য
-  const apps = [
-    {
-      name: "অ্যাপ ১",
-      img: "https://via.placeholder.com/200x150.png?text=App+1",
-      link: "#"
-    },
-    {
-      name: "অ্যাপ ২",
-      img: "https://via.placeholder.com/200x150.png?text=App+2",
-      link: "#"
-    },
-    // নতুন অ্যাপ এখানে যোগ করুন
-  ];
-
-  function createCard(item) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <img src="${item.img}" alt="${item.name}">
-      <h3>${item.name}</h3>
-      <a href="${item.link}" target="_blank">বিস্তারিত দেখুন</a>
-    `;
-    return card;
-  }
-
-  const productGrid = document.getElementById('productGrid');
-  products.forEach(product => {
-    productGrid.appendChild(createCard(product));
-  });
-
-  const appGrid = document.getElementById('appGrid');
-  apps.forEach(app => {
-    appGrid.appendChild(createCard(app));
-  });
-</script>
-
+  <footer>
+    <p>© ২০২৫ আমার ওয়েবসাইট</p>
+  </footer>
 </body>
 </html>
